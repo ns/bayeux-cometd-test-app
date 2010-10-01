@@ -1,0 +1,34 @@
+<h3>TimeSync</h3>
+<div id="time"></div>
+<div>offset=<span id="offset"></span></div>
+
+<hr>
+<h3>Subscribed Channels</h3>
+<p id="subscribed_channels"></p>
+<hr>
+
+<form action="" method="post" accept-charset="utf-8" id="channel_subscribe">
+  <label for="channel_path">Channel Path</label><input type="text" name="channel_path" value="" id="channel_path">
+  <br/><input type="submit" value="Subscribe &rarr;">
+</form>
+
+<script type="text/javascript" charset="utf-8">
+  (function($)
+  {
+    SUBSCRIBED_CHANNELS = [];
+    
+    function update_subscribed_channels() {
+      $("#subscribed_channels").html(SUBSCRIBED_CHANNELS.join(", "));
+    }
+    
+    $("#channel_subscribe").bind("submit", function(e) {
+      SUBSCRIBED_CHANNELS.push($("#channel_path").val());
+      $.cometd.subscribe($("#channel_path").val(), function(){});
+      $("#channel_path").val('');
+      update_subscribed_channels();
+      return false;
+    });
+    
+    
+  })(jQuery);
+</script>

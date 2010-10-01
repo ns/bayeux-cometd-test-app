@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TimesyncTest</title>
+  <%= stylesheet_link_tag :all %>
+  <%= javascript_include_tag "http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js" %>
+  <%= javascript_include_tag "jquery.json-2.2.js" %>
+  <%= javascript_include_tag "rails" %>
+  <%= javascript_include_tag "cometd", "cometd/AckExtension", "cometd/ReloadExtension", "cometd/TimeSyncExtension" %>
+  <%= javascript_include_tag "jquery.cometd" %>
+  <%= javascript_include_tag "application" %>
+  
+  <%= csrf_meta_tag %>
+  
+  <script type="text/javascript" charset="utf-8">
+    (function($)
+    {
+      $.cometd.timesync = new org.cometd.TimeSyncExtension();
+      $.cometd.registerExtension('timesync', $.cometd.timesync);
+      $.cometd.init("http://127.0.0.1:8080/cometd");
+      // $.cometd.subscribe("/chat/demo", function(){});
+      
+      var tick = function() {
+        var now = $.cometd.timesync.getServerDate();
+        $("#time").html(now.toUTCString());
+        $("#offset").html($.cometd.timesync.getTimeOffset() + "  from samples " + $.cometd.timesync.getTimeOffsetSamples().join());
+        now = now.getTime();
+        var next = "" + (1 + now / 1000);
+        next = parseInt(next.split('.')[0]) * 1000 + 10;
+        $.cometd.timesync.setTimeout(tick, next);
+      }
+      
+      setTimeout(tick, 1000);
+      
+      $(window).unload(function()
+      {
+          if ($.cometd.reload)
+            $.cometd.reload();
+          else
+            $.cometd.disconnect();
+      });
+      
+    })(jQuery);
+  </script>
+</head>
+<body>
+
+<%= yield %>
+
+</body>
+</html>
