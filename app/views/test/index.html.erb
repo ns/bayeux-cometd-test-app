@@ -12,6 +12,13 @@
   <br/><input type="submit" value="Subscribe &rarr;">
 </form>
 
+<hr>
+
+<form action="" method="post" accept-charset="utf-8" id="channel_unsubscribe">
+  <label for="unsub_channel_path">Channel Path</label><input type="text" name="unsub_channel_path" value="" id="unsub_channel_path">
+  <br/><input type="submit" value="Unsubscribe &rarr;">
+</form>
+
 <script type="text/javascript" charset="utf-8">
   (function($)
   {
@@ -22,13 +29,26 @@
     }
     
     $("#channel_subscribe").bind("submit", function(e) {
-      SUBSCRIBED_CHANNELS.push($("#channel_path").val());
-      $.cometd.subscribe($("#channel_path").val(), function(){});
+      SUBSCRIBED_CHANNELS.push($.cometd.subscribe($("#channel_path").val(), function(){}));
       $("#channel_path").val('');
       update_subscribed_channels();
       return false;
     });
     
-    
+    $("#channel_unsubscribe").bind("submit", function(e) {
+      new_channels = [];
+      
+      $(SUBSCRIBED_CHANNELS).each(function(evt, c) {
+        if (c[0] != $("#unsub_channel_path").val())
+          new_channels.push(c);
+        else
+          $.cometd.unsubscribe(c);
+        SUBSCRIBED_CHANNELS = new_channels;
+      });
+      
+      $("#unsub_channel_path").val('');
+      update_subscribed_channels();
+      return false;
+    });
   })(jQuery);
 </script>
